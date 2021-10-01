@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import useProducts from '../../hooks/useProducts';
-import { addToDb} from '../../utilities/fakedb';
+import { addToDb } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import './Shop.css'
@@ -19,24 +20,27 @@ const Shop = () => {
         const exist = cart?.find(prd => prd.key === product.key)
         let newCart = []
         if (exist) {
-            newCart = cart?.map(prd => {
-                if (prd.key === product.key) {
-                    if (prd['quantity']) {
-                        prd['quantity'] += 1;
-                    } else {
-                        prd['quantity'] = 2;
-                    }
-                    return prd
-                } else {
-                    return prd
-                }
-            })
+            const rest = cart.filter(prd => prd.key !== product.key);
+            product.quantity +=1;
+            newCart = [...rest, product]
+
+            //Not recomended
+            // newCart = cart?.map(prd => {
+            //     if (prd.key === product.key) {
+            //         prd['quantity'] += 1;
+            //         return prd
+            //     } else {
+            //         return prd
+            //     }
+            // })
         } else {
+            product.quantity = 1;
             newCart = [...cart, product]
         }
         setToCart(newCart)
         addToDb(product.key)
     }
+
     const handleSearch = event => {
         const searchText = event.target.value;
         const matchedProduct = products.filter(product =>
@@ -62,7 +66,11 @@ const Shop = () => {
                     }
                 </div>
                 <div className="cart-container">
-                    <Cart cart={cart}></Cart>
+                    <Cart cart={cart}>
+                        <Link to='/order'>
+                            <button className="btn-regular">Review Order</button>
+                        </Link>
+                    </Cart>
                 </div>
             </div>
         </div>
