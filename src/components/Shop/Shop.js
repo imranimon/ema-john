@@ -1,43 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { addToDb, getStoredCart } from '../../utilities/fakedb';
+import useCart from '../../hooks/useCart';
+import useProducts from '../../hooks/useProducts';
+import { addToDb} from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import './Shop.css'
 
 const Shop = () => {
-    const [products, setProducts] = useState([])
+    const [products] = useProducts()
+    const [cart, setToCart] = useCart(products)
     const [displayProduct, setDisplayProduct] = useState([])
-    const [cart, setToCart] = useState([])
 
     useEffect(() => {
-        fetch('./products.JSON')
-            .then(res => res.json())
-            .then(data => {
-                setProducts(data)
-                setDisplayProduct(data)
-            })
-    }, [])
-    useEffect(() => {
-        if (products.length) {
-            const saveedCart = getStoredCart();
-            const storedCard = [];
-            for (const key in saveedCart) {
-                const addedProduct = products.find(product => product.key === key);
-                const quantity = saveedCart[key]
-                if (addedProduct) {
-                    for (let i = 0; i < quantity; i++) {
-                        storedCard.push(addedProduct);
-                    }
-
-                }
-
-            }
-            setToCart(storedCard);
-        }
-
+        setDisplayProduct(products)
     }, [products])
+
     const handleAddToCart = (product) => {
-        const newCart = [...cart, product]
+        const exist = cart?.find(prd => prd.key === product.key)
+        let newCart = []
+        if (exist) {
+            newCart = cart?.map(prd => {
+                if (prd.key === product.key) {
+                    if (prd['quantity']) {
+                        prd['quantity'] += 1;
+                    } else {
+                        prd['quantity'] = 2;
+                    }
+                    return prd
+                } else {
+                    return prd
+                }
+            })
+        } else {
+            newCart = [...cart, product]
+        }
         setToCart(newCart)
         addToDb(product.key)
     }
@@ -45,15 +41,15 @@ const Shop = () => {
         const searchText = event.target.value;
         const matchedProduct = products.filter(product =>
             product.name.toLowerCase().includes(searchText.toLowerCase()));
-        setDisplayProduct(matchedProduct)    
+        setDisplayProduct(matchedProduct)
     }
 
     return (
         <div>
             <div className="search-bar">
-            <input type="text" 
-            placeholder="Search Product" 
-            onChange = {handleSearch}/>
+                <input type="text"
+                    placeholder="Search Product"
+                    onChange={handleSearch} />
             </div>
             <div className="shop-container" >
                 <div className="product-container">

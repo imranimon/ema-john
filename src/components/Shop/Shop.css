@@ -47,4 +47,7 @@
         position: relative;
         top: 190px;
     }
+    .cart-container {
+        margin-bottom: 50px;
+    }
 }
