@@ -30,7 +30,7 @@ const Cart = (props) => {
                 <p>Shipping: ${shipping}</p>
                 <p>Tax: ${tax.toFixed(2)}</p>
                 <p>Grand Total: ${grandTotal.toFixed(2)}</p>
-                {props.children}
+                {cart.length>0 && props.children}
             </div>
 
         </div>

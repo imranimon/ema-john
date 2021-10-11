@@ -28,6 +28,13 @@
   color: #61dafb;
 }
 
+.bellow-header{
+  width: 100%;
+  position: relative;
+  top: 90px;
+  margin: 0 5px 5px 5px;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -36,3 +43,4 @@
     transform: rotate(360deg);
   }
 }
+
