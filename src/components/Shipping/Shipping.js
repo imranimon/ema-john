@@ -2,23 +2,32 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { useHistory } from 'react-router';
 import useAuth from '../../hooks/useAuth';
-import useCart from '../../hooks/useCart';
-import useProducts from '../../hooks/useProducts';
-import { clearTheCart } from '../../utilities/fakedb';
+import { clearTheCart, getStoredCart } from '../../utilities/fakedb';
 import './Shipping.css'
 
 const Shipping = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const history = useHistory()
-    const [products] = useProducts()
-    const [setToCart] = useCart(products)
-    const {user} = useAuth()
+    const { user } = useAuth()
     const onSubmit = data => {
-        console.log(data);
-        // setToCart([]);
-        clearTheCart();
-        history.push('/place-order');
-        
+        const savedCart = getStoredCart()
+        data.order = savedCart
+        fetch('http://localhost:5000/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(result => {
+                console.log(result);
+                if (result.insertedId) {
+                    reset()
+                    clearTheCart();
+                    history.push('/place-order');
+                }
+            })
+
+
     };
     return (
         <div className="shipping-container">
@@ -37,7 +46,7 @@ const Shipping = () => {
 
                 <input defaultValue="" {...register("mobile")} placeholder='Mobile Number' />
 
-                <input className='btn-regular' type="submit" name='Place Order'/>
+                <input className='btn-regular' type="submit" name='Place Order' />
             </form>
         </div>
     );

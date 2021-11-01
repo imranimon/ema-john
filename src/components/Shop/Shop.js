@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
-import useProducts from '../../hooks/useProducts';
 import { addToDb } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import './Shop.css'
 
 const Shop = () => {
-    const [products] = useProducts()
-    const [cart, setToCart] = useCart(products)
+    const [products,setProducts] = useState([])
+    const [cart, setToCart] = useCart()
     const [displayProduct, setDisplayProduct] = useState([])
+
+    const [pageCount, setPageCount] = useState(0)
+    const [page, setPage] = useState(0)
+    const size = 10;
+    useEffect(() => {
+        fetch(`http://localhost:5000/products?page=${page}&&size=${size}`)
+            .then(res => res.json())
+            .then(data => {
+                setProducts(data.products)
+                const count = data.count;
+                const pageNumber = Math.ceil(count / size)
+                setPageCount(pageNumber)
+            })
+    }, [page])
 
     useEffect(() => {
         setDisplayProduct(products)
@@ -21,7 +34,7 @@ const Shop = () => {
         let newCart = []
         if (exist) {
             const rest = cart.filter(prd => prd.key !== product.key);
-            product.quantity +=1;
+            product.quantity += 1;
             newCart = [...rest, product]
 
             //Not recomended
@@ -64,6 +77,16 @@ const Shop = () => {
                             handleAddToCart={handleAddToCart}>
                         </Product>)
                     }
+                    <div className="pagination">
+                        {
+                            [...Array(pageCount).keys()]
+                                .map(number => <button
+                                    className={number === page ? 'selected' : ''}
+                                    key={number}
+                                    onClick={() => setPage(number)}
+                                >{number + 1}</button>)
+                        }
+                    </div>
                 </div>
                 <div className="cart-container">
                     <Cart cart={cart}>

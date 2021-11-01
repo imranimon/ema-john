@@ -12,6 +12,9 @@ const Header = () => {
                 <Link to="/shop">Shop</Link>
                 <Link to="/order">Order Review</Link>
                 <Link to="/inventory">Manage Inventory</Link>
+                {user.email &&
+                    <Link to="/my-orders">My Orders</Link>
+                }
                 {
                     user?.email ?
                         <button onClick={logOut} className='btn-regular'>Logout</button>
